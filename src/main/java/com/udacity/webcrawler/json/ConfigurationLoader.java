@@ -1,18 +1,15 @@
 package com.udacity.webcrawler.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.Objects;
+
 
 /**
  * A static utility class that loads a JSON configuration file.
@@ -33,14 +30,13 @@ public final class ConfigurationLoader {
    *
    * @return the loaded {@link CrawlerConfiguration}.
    */
-  public CrawlerConfiguration load() throws IOException{
+  public CrawlerConfiguration load() throws IOException {
     // TODO: Fill in this method.
     try(Reader reader = Files.newBufferedReader(path)) {
-     return read(reader);
+      return read(reader);
     } catch (IOException e){
-      throw new RuntimeException(e);
+      throw new  RuntimeException(e);
     }
-    //return new CrawlerConfiguration.Builder().build();
   }
 
   /**
@@ -49,17 +45,22 @@ public final class ConfigurationLoader {
    * @param reader a Reader pointing to a JSON string that contains crawler configuration.
    * @return a crawler configuration
    */
-
-  //@JsonDeserialize(builder = CrawlerConfiguration.Builder.class)
+  @JsonDeserialize(builder = CrawlerConfiguration.Builder.class)
   public static CrawlerConfiguration read(Reader reader) throws IOException {
     // This is here to get rid of the unused variable warning.
     Objects.requireNonNull(reader);
-
     // TODO: Fill in this method
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
-    mapper.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+    //TODO: Deserialization Using JSON
 
-    return mapper.readValue(reader, CrawlerConfiguration.Builder.class).build();
+    ObjectMapper objectMapper = new ObjectMapper();
+
+    /**
+     * JsonParser.Feature.AUTO_CLOSE_SOURCE.
+     * This prevents the Jackson library from closing the input Reader,
+     * which we have already closed in ConfigurationLoader#load().
+     */
+    objectMapper.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+    return objectMapper.readValue(reader, CrawlerConfiguration.Builder.class).build();
+
   }
 }
